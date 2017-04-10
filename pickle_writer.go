@@ -6,6 +6,7 @@ import "errors"
 import "encoding/binary"
 import "fmt"
 import "math/big"
+import "strings"
 
 type pickleProxy interface {
 	WriteTo(io.Writer) (int, error)
@@ -326,6 +327,14 @@ func (p *Pickler) dumpStruct(v reflect.Value,  nested bool) error {
 		fieldKey := field.Tag.Get(PICKLE_TAG)
 		if len(fieldKey) == 0 {
 			fieldKey = field.Name
+		} else {
+			comma := strings.Index(fieldKey, ",")
+			if comma != -1 {
+				if strings.Contains(fieldKey[comma:], "omitempty") {
+					continue
+				}
+				fieldKey = fieldKey[:comma]
+			}
 		}
 		p.dumpString(fieldKey)
 
