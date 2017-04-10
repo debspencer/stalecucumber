@@ -266,6 +266,10 @@ func (u unpacker) from(srcI interface{}) error {
 				if fieldByTag == nil {
 					fieldByTag = make(map[string]int)
 				}
+				comma := strings.Index(tag, ",")
+				if comma != -1 {
+					tag = fieldKey[:comma]
+				}
 				fieldByTag[tag] = i
 			}
 		}
