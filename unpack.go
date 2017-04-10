@@ -268,7 +268,7 @@ func (u unpacker) from(srcI interface{}) error {
 				}
 				comma := strings.Index(tag, ",")
 				if comma != -1 {
-					tag = fieldKey[:comma]
+					tag = tag[:comma]
 				}
 				fieldByTag[tag] = i
 			}
