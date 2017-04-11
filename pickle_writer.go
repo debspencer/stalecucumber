@@ -331,7 +331,9 @@ func (p *Pickler) dumpStruct(v reflect.Value,  nested bool) error {
 			comma := strings.Index(fieldKey, ",")
 			if comma != -1 {
 				if strings.Contains(fieldKey[comma:], "omitempty") {
-					continue
+					if valueEmpty(v) {
+						continue
+					}
 				}
 				fieldKey = fieldKey[:comma]
 			}
@@ -529,4 +531,16 @@ func (proxy stringProxy) WriteTo(w io.Writer) (int, error) {
 
 func (p *Pickler) dumpString(v string) {
 	p.pushProxy(stringProxy(v))
+}
+
+func valueEmpty(v reflect.Value) bool {
+	switch v.Kind() {
+	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:                                     return v.Len() == 0
+	case reflect.Bool:		                                                                    return v.Bool() == false
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:	                    return v.Int() == 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:  return v.Uint() == 0
+	case reflect.Float32, reflect.Float64:                                                              return v.Float() == 0
+	case reflect.Interface, reflect.Ptr:                                                                return v.IsNil()
+	}
+	return false
 }
