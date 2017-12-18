@@ -328,16 +328,23 @@ func (p *Pickler) dumpStruct(v reflect.Value,  nested bool) error {
 		if len(fieldKey) == 0 {
 			fieldKey = field.Name
 		} else {
-			comma := strings.Index(fieldKey, ",")
-			if comma != -1 {
-				if strings.Contains(fieldKey[comma:], "omitempty") {
+			skip := false
+			args := strings.Split(fieldKey, ",")
+			fieldKey = args[0]
+			if len(args) > 1 {
+				switch args[1] {
+				case "omitempty":
 					if valueEmpty(v) {
-						continue
+						skip = true
 					}
 				}
-				fieldKey = fieldKey[:comma]
+			}
+			if fieldKey == "-" || skip {
+				// skip fields we don't want to serialize
+				continue
 			}
 		}
+
 		p.dumpString(fieldKey)
 
 		fieldValue := v.Field(i)
