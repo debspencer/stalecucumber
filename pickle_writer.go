@@ -322,6 +322,8 @@ func (p *Pickler) dumpStruct(v reflect.Value,  nested bool) error {
                         continue
 		}
 
+		fieldValue := v.Field(i)
+
 		//Prefer the tagged name of the
 		//field, fall back to fields actual name
 		fieldKey := field.Tag.Get(PICKLE_TAG)
@@ -334,7 +336,7 @@ func (p *Pickler) dumpStruct(v reflect.Value,  nested bool) error {
 			if len(args) > 1 {
 				switch args[1] {
 				case "omitempty":
-					if valueEmpty(v) {
+					if valueEmpty(fieldValue) {
 						skip = true
 					}
 				}
@@ -347,7 +349,6 @@ func (p *Pickler) dumpStruct(v reflect.Value,  nested bool) error {
 
 		p.dumpString(fieldKey)
 
-		fieldValue := v.Field(i)
 		err := p.dump(fieldValue.Interface())
 		if err != nil {
 			return err
